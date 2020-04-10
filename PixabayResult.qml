@@ -28,6 +28,8 @@ Rectangle {
 
 
     property alias picture: image
+    property var ws
+
     Image {
         id: image
         visible: true
@@ -54,7 +56,30 @@ Rectangle {
     MouseArea {
         id: area
         anchors.fill: parent
-        onClicked: { console.log(picture.data["largeImageURL"]); }
+        onClicked: {
+            const pict_data = picture.data;
+            if (pict_data === undefined) {
+                console.debug("pict_data UNDEFINED !");
+                return;
+            }
+
+            const imageURL = pict_data["largeImageURL"];
+            if (imageURL === undefined) {
+                console.debug("ImageURL UNDEFINED !");
+                return;
+            }
+
+            console.debug("Downloading " + imageURL);
+            var http = new XMLHttpRequest();
+            http.open("GET", imageURL, true);
+            http.onreadystatechange = function() {
+                if (http.readyState === 4 && http.status === 200) {
+                    ws.sendBinaryMessage(http.response);
+                    console.debug("Got : " + picture.data["largeImageURL"]);
+                }
+            }
+            http.send();
+        }
     }
 }
 

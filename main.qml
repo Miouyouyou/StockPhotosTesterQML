@@ -29,10 +29,7 @@ Window {
             http.onreadystatechange = function() {
               if (http.readyState === 4) {
                   if (http.status === 200) {
-                      const doc = JSON.parse(http.responseText)
-                      const hits = doc["hits"];
-                      for (var i = 0; i < hits.length; i++)
-                          results.addPixabayResult(hits[i]);
+                      results.addPixabayResults(JSON.parse(http.responseText))
                       console.debug(http.responseText);
                   }
                   else {
@@ -51,13 +48,16 @@ Window {
         accept: true
         listen: true
         name: "Cochon D'inde King"
+        property var socket
         onClientConnected: {
             webSocket.onTextMessageReceived.connect(function(message) {
                 webSocket.sendTextMessage(qsTr("Bark bark bark"));
                 console.log("Connected");
 
             });
+            socket = webSocket
         }
+
         onErrorStringChanged: {
             console.log(qStr("Piou"));
         }
@@ -74,10 +74,21 @@ Window {
 
         Grid {
             id: results
+            function pixabayOnClick() {
+
+            }
+
             function addPixabayResult(json_data) {
                 var component = Qt.createComponent("PixabayResult.qml")
                 var pix_result = component.createObject(results)
+                pix_result.ws = server.socket
                 pix_result.picture.data = json_data;
+
+            }
+            function addPixabayResults(json_data) {
+                const hits = json_data["hits"];
+                for (var i = 0; i < hits.length; i++)
+                    results.addPixabayResult(hits[i]);
             }
 
         }
