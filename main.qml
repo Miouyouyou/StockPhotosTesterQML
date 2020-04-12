@@ -4,6 +4,7 @@ import QtQuick.Controls 2.13
 import QtQuick.Layouts 1.3
 import QtWebSockets 1.1
 import Qt.labs.settings 1.1
+import myy.helpers.websocket 1.0
 
 Window {
     id: window
@@ -42,7 +43,17 @@ Window {
         }
     }
 
-    WebSocketServer {
+    MyyWebSocketServer {
+        id: server
+        bindPort: 8080
+        bindAddress: "localhost"
+
+        Component.onCompleted: {
+            server.listen();
+        }
+    }
+
+    /*WebSocketServer {
         id: server
         port: 8080
         accept: true
@@ -62,7 +73,7 @@ Window {
             console.log(qStr("Piou"));
         }
 
-    }
+    }*/
 
     ScrollView {
         anchors.top: parent.top

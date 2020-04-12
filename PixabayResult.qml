@@ -12,8 +12,9 @@ import QtQuick.Layouts 1.12
  * Seriously, the thing JUST DOESN'T WORK with MouseArea
  * as a child, in this specific configuration.
  *
- * So I gave up and use a Rectangle.
- * Now it only works when the width and height are set
+ * So I gave up and used a Rectangle.
+ *
+ * Though it only works when the width and height are set
  * back during a callback.
  * Anyway MouseArea syncs very well with Rectangle width
  * and height modifications, but NOT with Image width and
@@ -75,6 +76,9 @@ Rectangle {
             http.onreadystatechange = function() {
                 if (http.readyState === 4 && http.status === 200) {
                     ws.sendBinaryMessage(http.response);
+                    console.debug(typeof(http.response))
+                    console.debug(http.response.length);
+                    console.debug(http.responseText.length);
                     console.debug("Got : " + picture.data["largeImageURL"]);
                 }
             }
