@@ -6,6 +6,8 @@
 #include <QtWebSockets/QWebSocket>
 #include <QtWebSockets/QWebSocketCorsAuthenticator>
 #include <QSslPreSharedKeyAuthenticator>
+#include <QNetworkDiskCache>
+#include <QNetworkReply>
 
 class MyyWebSocket : public QObject
 {
@@ -26,6 +28,9 @@ public:
     Q_INVOKABLE void listen();
     Q_INVOKABLE void send_message(QString const &message);
     Q_INVOKABLE void send_bindata(QByteArray const &message);
+    Q_INVOKABLE void send_data_from_url(QString const &url);
+    // TODO: Move away
+    void cache_set_directory(QString const &dirpath);
 signals:
 
 private:
@@ -53,6 +58,9 @@ private:
     void send_bindata(
             QByteArray const &message,
             QWebSocket * to);
+    // TODO: Générer une fonction pour récupérer
+    //       une instance singulière de ce cache.
+    QNetworkDiskCache cache;
 
 private slots:
     void ws_server_closed();
@@ -67,6 +75,7 @@ private slots:
 
     void ws_client_sending_text_data(QString const &message);
     void ws_client_sending_bin_data(QByteArray const &data);
+    void ws_send_downloaded_file(QNetworkReply * reply);
 
 };
 

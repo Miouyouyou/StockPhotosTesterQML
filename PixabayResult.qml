@@ -71,18 +71,8 @@ Rectangle {
             }
 
             console.debug("Downloading " + imageURL);
-            var http = new XMLHttpRequest();
-            http.open("GET", imageURL, true);
-            http.onreadystatechange = function() {
-                if (http.readyState === 4 && http.status === 200) {
-                    ws.sendBinaryMessage(http.response);
-                    console.debug(typeof(http.response))
-                    console.debug(http.response.length);
-                    console.debug(http.responseText.length);
-                    console.debug("Got : " + picture.data["largeImageURL"]);
-                }
-            }
-            http.send();
+            ws.send_data_from_url(imageURL);
+
         }
     }
 }

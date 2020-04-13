@@ -1,15 +1,37 @@
 #include "myywebsocket.h"
 
 #include "QtWebSockets/QWebSocket"
+#include "QNetworkAccessManager"
 
 #include <QFile> // TODO remove
 
+
+#include <QStandardPaths>
+#include <QDir>
+#include <QCoreApplication>
+
 #define LOG(fmt, ...) fprintf(stderr, "[C++] " fmt "\n", ##__VA_ARGS__)
+
+void MyyWebSocket::cache_set_directory(
+        QString const &string)
+{
+    cache.setCacheDirectory(string);
+}
 
 MyyWebSocket::MyyWebSocket(QObject *parent)
     : QObject(parent)
     , server("StockPhotosSelector", QWebSocketServer::SslMode::NonSecureMode)
 {
+    QString const cache_path =
+            QStandardPaths::locate(QStandardPaths::CacheLocation, "");
+    QDir cache_dirpath(cache_path);
+    if (!cache_dirpath.exists() && !cache_dirpath.mkpath("StockPhotos")) {
+        fprintf(stderr, "There's no cache, Bobby !");
+        QCoreApplication::quit();
+    }
+    cache_dirpath.cd("StockPhotos");
+    LOG("Download cache set to %s", cache_dirpath.absolutePath().toUtf8().data());
+    MyyWebSocket::cache_set_directory(cache_dirpath.absolutePath());
     connect(&server,
             &QWebSocketServer::acceptError,
             this,
@@ -232,6 +254,25 @@ void MyyWebSocket::send_bindata(
         to->peerName().toUtf8().data(),
         to->peerAddress().toString().toUtf8().data(),
         to->peerPort());
+}
+
+void MyyWebSocket::ws_send_downloaded_file(
+        QNetworkReply * reply)
+{
+    send_bindata(reply->readAll());
+}
+
+void MyyWebSocket::send_data_from_url(
+        QString const &url)
+{
+    LOG("Attempting to download data from %s ...", url.toUtf8().data());
+    QNetworkAccessManager * nem = new QNetworkAccessManager();
+    nem->setCache(&cache);
+    connect(nem,
+            &QNetworkAccessManager::finished,
+            this,
+            &MyyWebSocket::ws_send_downloaded_file);
+    nem->get(QNetworkRequest(QUrl(url)));
 }
 
 void MyyWebSocket::ws_client_sending_text_data(

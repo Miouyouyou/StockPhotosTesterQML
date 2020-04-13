@@ -92,7 +92,7 @@ Window {
             function addPixabayResult(json_data) {
                 var component = Qt.createComponent("PixabayResult.qml")
                 var pix_result = component.createObject(results)
-                pix_result.ws = server.socket
+                pix_result.ws = server
                 pix_result.picture.data = json_data;
 
             }
